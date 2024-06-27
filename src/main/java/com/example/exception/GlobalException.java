@@ -1,0 +1,17 @@
+package com.example.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import ch.qos.logback.core.net.SocketConnector.ExceptionHandler;
+
+@RestControllerAdvice
+public class GlobalException {
+    
+    @org.springframework.web.bind.annotation.ExceptionHandler(QuestionNotFoundException.class)
+    public ResponseEntity<String> questionNotFoundException(){
+        return new ResponseEntity<>("Question is not present in database",HttpStatus.NOT_FOUND);
+    }
+
+}

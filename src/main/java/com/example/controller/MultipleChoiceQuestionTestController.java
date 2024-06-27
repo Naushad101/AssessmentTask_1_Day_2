@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.exception.QuestionNotFoundException;
 import com.example.model.MultipleChoiceQuestionTest;
 import com.example.service.MultipleChoiceQuestionTestService;
 
@@ -39,11 +40,17 @@ public class MultipleChoiceQuestionTestController {
 
     @GetMapping("/getAllQuestion")
     public List<MultipleChoiceQuestionTest> getAllQuestion(){
+        if(multipleChoiceQuestionTestService.getAllQuestion()==null){
+            throw new QuestionNotFoundException("Question is not present in database");
+        }
         return multipleChoiceQuestionTestService.getAllQuestion();
     }
 
     @GetMapping("/getQuestionById")
     public Optional<MultipleChoiceQuestionTest> getQuestionById(@RequestParam("id") Long id){
+        if(!multipleChoiceQuestionTestService.getAllQuestion().contains(id)){
+            throw new QuestionNotFoundException("Question is not present in database");
+        }
         return multipleChoiceQuestionTestService.getQuestionById(id);
     }
 
