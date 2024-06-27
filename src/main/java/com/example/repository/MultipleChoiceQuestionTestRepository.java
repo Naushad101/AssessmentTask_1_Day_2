@@ -11,14 +11,25 @@ import com.example.model.MultipleChoiceQuestionTest;
 import jakarta.transaction.Transactional;
 
 @Repository
-public interface MultipleChoiceQuestionTestRepository extends JpaRepository<MultipleChoiceQuestionTest,Long> {
+public interface MultipleChoiceQuestionTestRepository extends JpaRepository<MultipleChoiceQuestionTest, Long> {
+
     @Transactional
     @Modifying
     @Query("UPDATE MultipleChoiceQuestionTest q " +
-           "SET q.question = :question, q.optionOne = :optionOne, q.optionTwo = :optionTwo " +
+           "SET q.question = :question, " +
+           "    q.optionOne = :optionOne, " +
+           "    q.optionTwo = :optionTwo, " +
+           "    q.optionThree = :optionThree, " +
+           "    q.optionFour = :optionFour, " +
+           "    q.correctOption = :correctOption, " +
+           "    q.category = :category " +
            "WHERE q.id = :id")
     void updateQuestion(@Param("id") Long id,
                         @Param("question") String question,
                         @Param("optionOne") String optionOne,
-                        @Param("optionTwo") String optionTwo);
+                        @Param("optionTwo") String optionTwo,
+                        @Param("optionThree") String optionThree,
+                        @Param("optionFour") String optionFour,
+                        @Param("correctOption") String correctOption,
+                        @Param("category") String category);
 }

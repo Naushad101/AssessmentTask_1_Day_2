@@ -3,7 +3,6 @@ package com.example.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.example.model.MultipleChoiceQuestionTest;
@@ -30,8 +29,8 @@ public class MultipleChoiceQuestionTestService {
         multipleChoiceQuestionTestRepository.deleteById(id);
     }
 
-     public void updateQuestion(Long id,String question,String optionOne,String secondOptioString,String optionThree,String optionFour){
-                                                                        multipleChoiceQuestionTestRepository.updateQuestion(id, question, optionOne, optionThree);
+     public void updateQuestion(Long id,String question,String optionOne,String secondOptioString,String optionThree,String optionFour,String correctOption,String category){
+                                                                        multipleChoiceQuestionTestRepository.updateQuestion(id, question, optionOne,secondOptioString, optionThree,optionFour,correctOption,category);
                                                                     }
 
 

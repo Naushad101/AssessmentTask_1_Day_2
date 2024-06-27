@@ -31,9 +31,9 @@ public class MultipleChoiceQuestionTestController {
 
     @PutMapping("/updateQuestion")
     public ResponseEntity updateQuestion(@RequestParam("id") Long id,@RequestParam("question") String question,
-                                                                    @RequestParam("optionOne") String optionOne,@RequestParam("secondOption") String secondOptioString,
-                                                                    @RequestParam("optionThree") String optionThree,@RequestParam("optionFour") String optionFour){
-                                                                        multipleChoiceQuestionTestService.updateQuestion(id, question, optionOne, secondOptioString, optionThree, optionFour);
+                                                                    @RequestParam("optionOne") String optionOne,@RequestParam("OptionTwo") String secondOptioString,
+                                                                    @RequestParam("optionThree") String optionThree,@RequestParam("optionFour") String optionFour,@RequestParam("correctOption") String correctOption,@RequestParam("category") String category){
+                                                                        multipleChoiceQuestionTestService.updateQuestion(id, question, optionOne, secondOptioString, optionThree, optionFour,correctOption,category);
                                                                         return new ResponseEntity<>(HttpStatus.OK);
                                                                     }
 
