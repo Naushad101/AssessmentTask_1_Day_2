@@ -18,13 +18,13 @@ public class MultipleChoiceQuestionTest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long question_id;
-    String question;
     String category;
-	String option_one;
-	String option_two;
-	String option_three;
-	String option_four;
-	String correct_option;
-	String positive_mark;
-	String negative_mark;
+    String question;
+	String optionOne;
+	String optionTwo;
+	String optionThree;
+	String optionFour;
+	String correctOption;
+	String positiveMark;
+	String negativeMark;
 }
