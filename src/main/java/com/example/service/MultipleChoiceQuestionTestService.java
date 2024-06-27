@@ -2,10 +2,9 @@ package com.example.service;
 
 import java.util.Optional;
 
-import org.hibernate.mapping.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.model.MultipleChoiceQuestionTest;
 import com.example.repository.MultipleChoiceQuestionTestRepository;
@@ -30,6 +29,10 @@ public class MultipleChoiceQuestionTestService {
      public void deleteQuestion(Long id){
         multipleChoiceQuestionTestRepository.deleteById(id);
     }
+
+     public void updateQuestion(Long id,String question,String optionOne,String secondOptioString,String optionThree,String optionFour){
+                                                                        multipleChoiceQuestionTestRepository.updateQuestion(id, question, optionOne, optionThree);
+                                                                    }
 
 
 }
