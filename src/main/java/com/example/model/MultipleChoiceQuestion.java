@@ -1,8 +1,13 @@
 package com.example.model;
 
 import org.hibernate.annotations.ManyToAny;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,5 +37,6 @@ public class MultipleChoiceQuestion {
 	String negativeMark;
 	@ManyToOne
 	@JoinColumn(name="SubCategory_Id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	SubCategory subCategory;
 }
