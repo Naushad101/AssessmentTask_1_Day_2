@@ -29,9 +29,9 @@ public class MultipleChoiceQuestionTestService {
         multipleChoiceQuestionTestRepository.deleteById(id);
     }
 
-     public void updateQuestion(Long id,String question,String optionOne,String secondOptioString,String optionThree,String optionFour,String correctOption,String category){
-                                                                        multipleChoiceQuestionTestRepository.updateQuestion(id, question, optionOne,secondOptioString, optionThree,optionFour,correctOption,category);
-                                                                    }
+    // public void updateQuestion(Long id,String question,String optionOne,String secondOptioString,String optionThree,String optionFour,String correctOption,String category){
+                                                                        //multipleChoiceQuestionTestRepository.updateQuestion(id, question, optionOne,secondOptioString, optionThree,optionFour,correctOption,category);
+                                                                   // }
 
 
 }
