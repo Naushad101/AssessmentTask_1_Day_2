@@ -1,7 +1,6 @@
 package com.example.testMultipleChoiceQuestionTestService;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
@@ -10,10 +9,10 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.model.Category;
 import com.example.model.MultipleChoiceQuestion;
@@ -21,83 +20,98 @@ import com.example.model.SubCategory;
 import com.example.repository.MultipleChoiceQuestionTestRepository;
 import com.example.service.MultipleChoiceQuestionTestService;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class MultipleChoiceQuestionTestServiceTest {
 
-
     @Mock
-    private MultipleChoiceQuestionTestService service;
+    private MultipleChoiceQuestionTestRepository questionRepository;
+
+    @InjectMocks
+    private MultipleChoiceQuestionTestService questionService;
+
+    private MultipleChoiceQuestion question;
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
+        question = new MultipleChoiceQuestion();
+        question.setQuestion_Id(1L);
+        question.setQuestion("Sample question");
+        question.setOptionOne("Option A");
+        question.setOptionTwo("Option B");
+        question.setOptionThree("Option C");
+        question.setOptionFour("Option D");
+        question.setCorrectOption("Option A");
+        question.setPositiveMark("3");
+        question.setNegativeMark("-1");
+        question.setSubCategory(new SubCategory(1L,"Sample","Sample Question",new Category(1L,"Sample","Sample Question")));
     }
 
-    // @Test
-    // public void testSaveQuestions() {
-    //     MultipleChoiceQuestionTest question = new MultipleChoiceQuestionTest(1L,"save","save question","option A","option B","option C","option D","option A","3","-1");
+    @Test
+    public void testSaveQuestion() {
+       
+        when(questionRepository.save(question)).thenReturn(question);
 
-    //     when(repository.save(question)).thenReturn(question);
+        
+        MultipleChoiceQuestion savedQuestion = questionService.saveQuestions(question);
 
-    //     MultipleChoiceQuestionTest savedQuestion = service.saveQuestions(question);
+        
+        assertNotNull(savedQuestion);
+        assertEquals("Sample question", savedQuestion.getQuestion());
+    }
 
-    //     assertEquals(question, savedQuestion);
-    // }
+    @Test
+    public void testGetAllQuestions() {
+       
+        List<MultipleChoiceQuestion> questions = new ArrayList<>();
+        questions.add(question);
+        when(questionRepository.findAll()).thenReturn(questions);
 
-    // @Test
-    // public void testGetAllQuestions() {
-    //     List<MultipleChoiceQuestionTest> questionList = new ArrayList<>();
-    //     questionList.add(new MultipleChoiceQuestionTest(1L,"save","save question","option A","option B","option C","option D","option A","3","-1"));
-    //     questionList.add(new MultipleChoiceQuestionTest(1L,"save1","save question1","option A1","option B1","option C1","option D1","option A1","3","-1"));
+       
+        List<MultipleChoiceQuestion> retrievedQuestions = questionService.getAllQuestion();
 
-    //     when(repository.findAll()).thenReturn(questionList);
-
-    //     List<MultipleChoiceQuestionTest> fetchedList = service.getAllQuestion();
-
-    //     assertEquals(questionList, fetchedList);;
-    // }
+        
+        assertNotNull(retrievedQuestions);
+        assertEquals(1, retrievedQuestions.size());
+        assertEquals("Sample question", retrievedQuestions.get(0).getQuestion());
+    }
 
     @Test
     public void testGetQuestionById() {
-        Long id = 1L;
-        String question = "Updated question";
-        String optionOne = "Updated option A";
-        String optionTwo = "Updated option B";
-        String optionThree = "Updated option C";
-        String optionFour = "Updated option D";
-        String correctOption = "A";
-        Category category = new Category(1L,"Alpha","Alpha category");
-        SubCategory subCategory = new SubCategory(1L,"Alphabate","Alphabate subCategory",category);
-        MultipleChoiceQuestion multipleChoiceQuestion = new MultipleChoiceQuestion(id,question,optionOne,optionTwo,optionThree,optionFour,correctOption,"3","-1",subCategory);
-        Optional<MultipleChoiceQuestion> fetchedQuestion = service.getQuestionById(1L);
+        
+        when(questionRepository.findById(1L)).thenReturn(Optional.of(question));
 
-        assertEquals(Optional.of(multipleChoiceQuestion), fetchedQuestion.get());
-    }
+       
+        Optional<MultipleChoiceQuestion> retrievedQuestion = questionService.getQuestionById(1L);
 
-    @Test
-    public void testDeleteQuestion() {
-        Long id = 1L;
-
-        service.deleteQuestion(id);
-
-        verify(service, times(1)).deleteQuestion(id);;
+    
+        assertTrue(retrievedQuestion.isPresent());
+        assertEquals("Sample question", retrievedQuestion.get().getQuestion());
     }
 
     @Test
     public void testUpdateQuestion() {
-        Long id = 1L;
-        String question = "Updated question";
-        String optionOne = "Updated option A";
-        String optionTwo = "Updated option B";
-        String optionThree = "Updated option C";
-        String optionFour = "Updated option D";
-        String correctOption = "A";
-        Category category = new Category(1L,"Alpha","Alpha category");
-        SubCategory subCategory = new SubCategory(1L,"Alphabate","Alphabate subCategory",category);
-        MultipleChoiceQuestion multipleChoiceQuestion = new MultipleChoiceQuestion(id,question,optionOne,optionTwo,optionThree,optionFour,correctOption,"3","-1",subCategory);
-        service.updateQuestion(id, multipleChoiceQuestion);
+        
+        String updatedQuestion = "Updated question";
+        question.setQuestion(updatedQuestion);
+        when(questionRepository.findById(1L)).thenReturn(Optional.of(question));
+        when(questionRepository.save(any())).thenReturn(question);
 
+        
+        MultipleChoiceQuestion updated = new MultipleChoiceQuestion();
+        updated.setQuestion(updatedQuestion);
+        MultipleChoiceQuestion updatedQuestionObj = questionService.updateQuestion(1L, updated);
 
-       verify(service,times(1)).updateQuestion(id, multipleChoiceQuestion);
+      
+        assertNotNull(updatedQuestionObj);
+        assertEquals(updatedQuestion, updatedQuestionObj.getQuestion());
+    }
+
+    @Test
+    public void testDeleteQuestion() {
+        
+        questionService.deleteQuestion(1L);
+
+        
+        verify(questionRepository, times(1)).deleteById(1L);
     }
 }
