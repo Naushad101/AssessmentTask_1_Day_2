@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.exception.CategoryNotFoundException;
 import com.example.model.Category;
 import com.example.service.CategoryService;
 
@@ -44,6 +45,9 @@ public class CategoryController {
     
     @DeleteMapping("/deleteCategory")
     public ResponseEntity<String> deleteCategory(@RequestParam("id") Long id){
+        if(!categoryService.getCategory().contains(id)){
+            throw new CategoryNotFoundException("Id Is Not Present Into DB");
+        }
         categoryService.deleteCategory(id);
         return ResponseEntity.ok("Deleted category with id : " + id);
     }
