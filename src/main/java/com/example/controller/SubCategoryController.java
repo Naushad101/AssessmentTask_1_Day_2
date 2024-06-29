@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.exception.SubCategoryNotFoundException;
 import com.example.model.Category;
 import com.example.model.SubCategory;
 import com.example.service.SubCategoryService;
@@ -67,7 +68,7 @@ public class SubCategoryController {
         if (deleted) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+           throw new SubCategoryNotFoundException("Id Is Not Present Into Db");
         }
     }
 }
