@@ -8,15 +8,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.exception.QuestionNotFoundException;
-import com.example.model.MultipleChoiceQuestionTest;
+import com.example.model.MultipleChoiceQuestion;
 import com.example.service.MultipleChoiceQuestionTestService;
 
 @RestController
@@ -24,22 +26,25 @@ public class MultipleChoiceQuestionTestController {
 
     @Autowired
     MultipleChoiceQuestionTestService multipleChoiceQuestionTestService;
+
+
+    @PostMapping("/saveBulkQuestion")
+    public ResponseEntity<List<MultipleChoiceQuestion>> saveQuestionFromExcelFile(@RequestParam("file") MultipartFile file){
+        return multipleChoiceQuestionTestService.saveQuestionFromExcelFile(file);
+    }
     
     @PostMapping("/saveQuestion")
-    public ResponseEntity<MultipleChoiceQuestionTest> saveQuestions(@RequestBody MultipleChoiceQuestionTest multipleChoiceQuestionTest){
+    public ResponseEntity<MultipleChoiceQuestion> saveQuestions(@RequestBody MultipleChoiceQuestion multipleChoiceQuestionTest){
         return new ResponseEntity<>(multipleChoiceQuestionTestService.saveQuestions(multipleChoiceQuestionTest),HttpStatus.CREATED);
     }
 
-    @PutMapping("/updateQuestion")
-    public ResponseEntity updateQuestion(@RequestParam("id") Long id,@RequestParam("question") String question,
-                                                                    @RequestParam("optionOne") String optionOne,@RequestParam("OptionTwo") String secondOptioString,
-                                                                    @RequestParam("optionThree") String optionThree,@RequestParam("optionFour") String optionFour,@RequestParam("correctOption") String correctOption,@RequestParam("category") String category){
-                                                                        multipleChoiceQuestionTestService.updateQuestion(id, question, optionOne, secondOptioString, optionThree, optionFour,correctOption,category);
-                                                                        return new ResponseEntity<>(HttpStatus.OK);
-                                                                    }
+    @PutMapping("/updateQuestion/{id}")
+    public MultipleChoiceQuestion updateQuestion(@PathVariable("id") Long id,@RequestBody MultipleChoiceQuestion multipleChoiceQuestion){
+        return multipleChoiceQuestionTestService.updateQuestion(id, multipleChoiceQuestion);
+    }
 
     @GetMapping("/getAllQuestion")
-    public List<MultipleChoiceQuestionTest> getAllQuestion(){
+    public List<MultipleChoiceQuestion> getAllQuestion(){
         if(multipleChoiceQuestionTestService.getAllQuestion()==null){
             throw new QuestionNotFoundException("Question is not present in database");
         }
@@ -47,7 +52,7 @@ public class MultipleChoiceQuestionTestController {
     }
 
     @GetMapping("/getQuestionById")
-    public Optional<MultipleChoiceQuestionTest> getQuestionById(@RequestParam("id") Long id){
+    public Optional<MultipleChoiceQuestion> getQuestionById(@RequestParam("id") Long id){
         if(!multipleChoiceQuestionTestService.getAllQuestion().contains(id)){
             throw new QuestionNotFoundException("Question is not present in database");
         }

@@ -17,9 +17,9 @@ import lombok.NoArgsConstructor;
 public class SubCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long SubCategoryId;
-    String SubCategoryName;
-    String SubCategoryDescription;
+    Long subCategoryId;
+    String subCategoryName;
+    String subCategoryDescription;
     @ManyToOne
     @JoinColumn(name="category_id")
     Category category;
