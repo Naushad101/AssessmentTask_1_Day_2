@@ -1,8 +1,11 @@
 package com.example.testMultipleChoiceQuestionTestService;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -13,11 +16,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.model.Category;
 import com.example.model.MultipleChoiceQuestion;
 import com.example.model.SubCategory;
 import com.example.repository.MultipleChoiceQuestionTestRepository;
+import com.example.repository.SubCategoryRepository;
 import com.example.service.MultipleChoiceQuestionTestService;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,8 +34,13 @@ public class MultipleChoiceQuestionTestServiceTest {
     @Mock
     private MultipleChoiceQuestionTestRepository questionRepository;
 
+    @Mock
+    private SubCategoryRepository subCategoryRepository;
+
     @InjectMocks
     private MultipleChoiceQuestionTestService questionService;
+
+
 
     private MultipleChoiceQuestion question;
 
@@ -57,6 +70,43 @@ public class MultipleChoiceQuestionTestServiceTest {
         
         assertNotNull(savedQuestion);
         assertEquals("Sample question", savedQuestion.getQuestion());
+    }
+
+    @Test
+    public void testSaveQuestionFromExcelFile() throws IOException {
+        
+        String content = "Category Name,Question,Option 1,Option 2,Option 3,Option 4,Correct Option,Positive Mark,Negative Mark\n" +
+                "Category1,Question 1,Option A,Option B,Option C,Option D,Option A,1,0.5\n" +
+                "Category2,Question 2,Option A,Option B,Option C,Option D,Option B,1,0.5\n";
+
+        byte[] contentBytes = content.getBytes();
+        MultipartFile multipartFile = new MockMultipartFile("C:\\Users\\naushad.shaikh\\Downloads\\QuestionBank.xlsx",contentBytes);
+
+        
+        SubCategory subCategory = new SubCategory();
+        subCategory.setSubCategoryId(1L);
+        subCategory.setSubCategoryName("Category1");
+        when(subCategoryRepository.findBySubCategoryName("Category1")).thenReturn(Optional.of(subCategory));
+        when(subCategoryRepository.findBySubCategoryName("Category2")).thenReturn(Optional.empty()); 
+
+        
+        when(questionRepository.save(any())).thenAnswer(invocation -> {
+            MultipleChoiceQuestion question = invocation.getArgument(0);
+            question.setQuestion_Id(1L); 
+            return question;
+        });
+
+       
+        ResponseEntity<List<MultipleChoiceQuestion>> responseEntity = questionService.saveQuestionFromExcelFile(multipartFile);
+
+        
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        List<MultipleChoiceQuestion> savedQuestions = responseEntity.getBody();
+        assertEquals(2, savedQuestions.size()); 
+
+   
+        verify(subCategoryRepository, times(2)).findBySubCategoryName(anyString()); 
+        verify(questionRepository, times(2)).save(any()); 
     }
 
     @Test

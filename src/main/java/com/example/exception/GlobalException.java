@@ -1,5 +1,6 @@
 package com.example.exception;
 
+import org.hibernate.boot.archive.scan.spi.ClassDescriptor.Categorization;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -21,8 +22,17 @@ public class GlobalException {
             return new ResponseEntity<>(ex.getMessage(),HttpStatus.NOT_FOUND);
     }
 
+    @org.springframework.web.bind.annotation.ExceptionHandler(SubCategoryNotFoundException.class)
     public ResponseEntity<String> subCategoryNotFoundException(SubCategoryNotFoundException ex){
         return new ResponseEntity<>(ex.getMessage(),HttpStatus.NOT_FOUND);
+    }
+
+    public ResponseEntity<String> categoryIsAlreadyPresent(CategroyIsAlreadyPresent msg){
+        return new ResponseEntity<>(msg.getMessage(),HttpStatus.ALREADY_REPORTED);
+    }
+
+    public ResponseEntity<String> subCategoryIsAlreadyPresent(SubCategoryIsAlreadyPresent msg){
+        return new ResponseEntity<>(msg.getMessage(),HttpStatus.ALREADY_REPORTED);
     }
 
 }

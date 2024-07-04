@@ -3,7 +3,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.exception.CategoryNotFoundException;
 import com.example.model.SubCategory;
+import com.example.repository.CategoryRepository;
 import com.example.repository.SubCategoryRepository;
 
 import java.util.List;
@@ -15,7 +17,13 @@ public class SubCategoryService {
     @Autowired
     private SubCategoryRepository subCategoryRepository;
 
+    @Autowired 
+    CategoryRepository categoryRepository;
+
     public SubCategory saveSubCategory(SubCategory subCategory) {
+        if(!categoryRepository.findAll().contains(subCategory.getCategory().getCategoryName())){
+            throw new CategoryNotFoundException("Category is Not present");
+        }
         return subCategoryRepository.save(subCategory);
     }
 
