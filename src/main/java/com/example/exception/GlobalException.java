@@ -27,10 +27,12 @@ public class GlobalException {
         return new ResponseEntity<>(ex.getMessage(),HttpStatus.NOT_FOUND);
     }
 
+    @org.springframework.web.bind.annotation.ExceptionHandler(CategroyIsAlreadyPresent.class)
     public ResponseEntity<String> categoryIsAlreadyPresent(CategroyIsAlreadyPresent msg){
         return new ResponseEntity<>(msg.getMessage(),HttpStatus.ALREADY_REPORTED);
     }
 
+    @org.springframework.web.bind.annotation.ExceptionHandler(SubCategoryIsAlreadyPresent.class)
     public ResponseEntity<String> subCategoryIsAlreadyPresent(SubCategoryIsAlreadyPresent msg){
         return new ResponseEntity<>(msg.getMessage(),HttpStatus.ALREADY_REPORTED);
     }

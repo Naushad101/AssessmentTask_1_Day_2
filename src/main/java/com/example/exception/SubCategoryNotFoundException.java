@@ -1,8 +1,7 @@
 package com.example.exception;
 
-import java.security.PublicKey;
 
-public class SubCategoryNotFoundException extends RuntimeException {
+public class SubCategoryNotFoundException extends Exception{
     public SubCategoryNotFoundException(String msg){
         super(msg);
     }
