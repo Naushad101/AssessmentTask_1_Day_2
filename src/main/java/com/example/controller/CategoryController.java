@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,35 +21,35 @@ import com.example.model.Category;
 import com.example.service.CategoryService;
 
 @RestController
+@RequestMapping("/category")
 public class CategoryController {
 
-    @Autowired
+
     CategoryService categoryService;
 
-    @PostMapping("/category")
+    public CategoryController(CategoryService categoryService){
+        this.categoryService=categoryService;
+    }
+
+    @PostMapping()
     public ResponseEntity<Category> saveCategory(@RequestBody Category category){
         return new ResponseEntity<>(categoryService.saveCategory(category),HttpStatus.CREATED);
     }
 
 
-    @GetMapping("/getCategory")
+    @GetMapping()
     public ResponseEntity<List<Category>> getCategory(){
         List<Category> getCategory = categoryService.getCategory();
         return ResponseEntity.status(HttpStatus.FOUND).body(getCategory);
     }
 
-    @PutMapping("/category")
-    public ResponseEntity<Category> updateCategory(@RequestParam("id") Long id, @RequestParam("categoryName") String categoryName, @RequestParam("categoryDescription") String categoryDescription ){
-        Category updatedCategory = categoryService.updateCategory(id,categoryName,categoryDescription);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(updatedCategory);
+    @PutMapping()
+    public ResponseEntity<Category> updateCategory(Category category){
+        return categoryService.updateCategory(category);
     } 
     
-    @DeleteMapping("/deleteCategory")
-    public ResponseEntity<String> deleteCategory(@RequestParam("id") Long id){
-        if(!categoryService.getCategory().contains(id)){
-            throw new CategoryNotFoundException("Id Is Not Present Into DB");
-        }
+    @DeleteMapping()
+    public void deleteCategory(@RequestParam("id") Long id){
         categoryService.deleteCategory(id);
-        return ResponseEntity.ok("Deleted category with id : " + id);
     }
 }
