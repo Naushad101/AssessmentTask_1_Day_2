@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.exception.CategoryNotFoundException;
+import com.example.exception.CategroyIsAlreadyPresent;
+import com.example.exception.SubCategoryIsAlreadyPresent;
 import com.example.model.Category;
 import com.example.service.CategoryService;
 
@@ -32,24 +34,24 @@ public class CategoryController {
     }
 
     @PostMapping()
-    public ResponseEntity<Category> saveCategory(@RequestBody Category category){
+    public ResponseEntity<Category> saveCategory(@RequestBody Category category) throws CategroyIsAlreadyPresent{
         return new ResponseEntity<>(categoryService.saveCategory(category),HttpStatus.CREATED);
     }
 
 
     @GetMapping()
-    public ResponseEntity<List<Category>> getCategory(){
+    public ResponseEntity<List<Category>> getCategory() throws CategoryNotFoundException{
         List<Category> getCategory = categoryService.getCategory();
         return ResponseEntity.status(HttpStatus.FOUND).body(getCategory);
     }
 
     @PutMapping()
-    public ResponseEntity<Category> updateCategory(Category category){
+    public ResponseEntity<Category> updateCategory(Category category) throws CategoryNotFoundException{
         return categoryService.updateCategory(category);
     } 
     
     @DeleteMapping()
-    public void deleteCategory(@RequestParam("id") Long id){
+    public void deleteCategory(@RequestParam("id") Long id) throws CategoryNotFoundException{
         categoryService.deleteCategory(id);
     }
 }

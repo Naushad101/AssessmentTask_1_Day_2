@@ -23,14 +23,14 @@ public class CategoryService {
         this.categoryRepository=categoryRepository;
     }
 
-    public Category saveCategory(Category category){
+    public Category saveCategory(Category category) throws CategroyIsAlreadyPresent{
         if(categoryRepository.findAll().contains(category.getCategoryName())){
             throw new CategroyIsAlreadyPresent("Category is already present");
         }
        return categoryRepository.save(category);
     }
 
-    public List<Category> getCategory(){ 
+    public List<Category> getCategory() throws CategoryNotFoundException{ 
         try {
             return categoryRepository.findAll();
         } catch (DataAccessException e) {
@@ -38,12 +38,12 @@ public class CategoryService {
         }
     }
 
-    public ResponseEntity<Category> updateCategory(Category category) {
+    public ResponseEntity<Category> updateCategory(Category category) throws CategoryNotFoundException{
 
                 if(categoryRepository.findById(category.getCategoryId()).isEmpty()){
                     throw new CategoryNotFoundException("Category with id " + category.getCategoryId() + " is not present in database");
                 }
-                Category existingCategory = categoryRepository.findById(category.getCategoryId()).get();
+                Category existingCategory = categoryRepository.findById(category.getCategoryId()).orElseThrow();
                 existingCategory.setCategoryName(category.getCategoryName());
                 existingCategory.setCategoryId(category.getCategoryId());
                 existingCategory.setCategoryDescription(category.getCategoryDescription());
@@ -51,7 +51,7 @@ public class CategoryService {
 
     }
 
-    public void deleteCategory(Long id) {
+    public void deleteCategory(Long id) throws CategoryNotFoundException{
         if(categoryRepository.findById(id).isEmpty()){
             throw new CategoryNotFoundException("Category with id "+id+" is not present in Database");
         }

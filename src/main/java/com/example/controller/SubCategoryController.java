@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.exception.CategoryNotFoundException;
+import com.example.exception.SubCategoryIsAlreadyPresent;
 import com.example.exception.SubCategoryNotFoundException;
 import com.example.model.Category;
 import com.example.model.SubCategory;
@@ -23,53 +25,41 @@ import com.example.service.SubCategoryService;
 @RequestMapping("/api/subcategories")
 public class SubCategoryController {
 
-    @Autowired
+    
     private SubCategoryService subCategoryService;
-    
-    
-    @PostMapping("/")
-    public ResponseEntity<SubCategory> saveSubCategory(@RequestBody SubCategory subCategory) {
-        SubCategory savedSubCategory = subCategoryService.saveSubCategory(subCategory);
-        return new ResponseEntity<>(savedSubCategory, HttpStatus.CREATED);
+
+    public SubCategoryController(SubCategoryService subCategoryService){
+        this.subCategoryService=subCategoryService;
     }
     
     
-    @GetMapping("/")
-    public ResponseEntity<List<SubCategory>> getAllSubCategories() {
+    @PostMapping()
+    public ResponseEntity<SubCategory> saveSubCategory(@RequestBody SubCategory subCategory) throws SubCategoryIsAlreadyPresent,CategoryNotFoundException{
+       return subCategoryService.saveSubCategory(subCategory);
+    }
+    
+    
+    @GetMapping()
+    public ResponseEntity<List<SubCategory>> getAllSubCategories() throws SubCategoryNotFoundException {
         List<SubCategory> subCategories = subCategoryService.getAllSubCategories();
         return new ResponseEntity<>(subCategories, HttpStatus.OK);
     }
     
     
     @GetMapping("/{id}")
-    public ResponseEntity<SubCategory> getSubCategoryById(@PathVariable Long id) {
-        SubCategory subCategory = subCategoryService.getSubCategoryById(id);
-        if (subCategory != null) {
-            return new ResponseEntity<>(subCategory, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<SubCategory> getSubCategoryById(@PathVariable Long id) throws SubCategoryNotFoundException{
+       return subCategoryService.getSubCategoryById(id);
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<SubCategory> updateSubCategory(@PathVariable Long id, @RequestBody SubCategory subCategory) {
-        SubCategory updatedSubCategory = subCategoryService.updateSubCategory(id, subCategory);
-        if (updatedSubCategory != null) {
-            return new ResponseEntity<>(updatedSubCategory, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<SubCategory> updateSubCategory(@PathVariable Long id, @RequestBody SubCategory subCategory) throws SubCategoryNotFoundException {
+       return subCategoryService.updateSubCategory(id, subCategory);
     }
     
     // Delete operation
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSubCategory(@PathVariable Long id) {
-        boolean deleted = subCategoryService.deleteSubCategory(id);
-        if (deleted) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-           throw new SubCategoryNotFoundException("Id Is Not Present Into Db");
-        }
+    public void deleteSubCategory(@PathVariable Long id) throws SubCategoryNotFoundException {
+       subCategoryService.deleteSubCategory(id);
     }
 }
 
