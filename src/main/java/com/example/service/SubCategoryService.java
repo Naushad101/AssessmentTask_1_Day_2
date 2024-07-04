@@ -1,18 +1,12 @@
 package com.example.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.example.exception.CategoryNotFoundException;
 import com.example.exception.SubCategoryIsAlreadyPresent;
 import com.example.exception.SubCategoryNotFoundException;
-import com.example.model.Category;
 import com.example.model.SubCategory;
 import com.example.repository.CategoryRepository;
 import com.example.repository.SubCategoryRepository;

@@ -13,48 +13,69 @@ import com.example.exception.CategroyIsAlreadyPresent;
 import com.example.model.Category;
 import com.example.repository.CategoryRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class CategoryService {
 
-    
-    private CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
 
-    public CategoryService(CategoryRepository categoryRepository){
-        this.categoryRepository=categoryRepository;
+    public CategoryService(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
     }
 
-    public Category saveCategory(Category category) throws CategroyIsAlreadyPresent{
-        if(categoryRepository.findAll().contains(category.getCategoryName())){
-            throw new CategroyIsAlreadyPresent("Category is already present");
+    public Category saveCategory(Category category) throws CategroyIsAlreadyPresent {
+        log.info("Saving category: {}", category.getCategoryName());
+        
+        if (categoryRepository.findAll().contains(category.getCategoryName())) {
+            throw new CategroyIsAlreadyPresent("Category " + category.getCategoryName() + " is already present");
         }
-       return categoryRepository.save(category);
+
+        Category savedCategory = categoryRepository.save(category);
+        log.info("Saved category: {}", savedCategory.getCategoryName());
+        return savedCategory;
     }
 
-    public List<Category> getCategory() throws CategoryNotFoundException{ 
+    public List<Category> getCategory() throws CategoryNotFoundException {
+        log.info("Fetching all categories");
+
         try {
-            return categoryRepository.findAll();
+            List<Category> categories = categoryRepository.findAll();
+            log.info("Fetched {} categories", categories.size());
+            return categories;
         } catch (DataAccessException e) {
-            throw new CategoryNotFoundException("Failed to retrieve categories from the database "+e);
+            String message = "Failed to retrieve categories from the database";
+            log.error(message, e);
+            throw new CategoryNotFoundException(message+" "+e);
         }
     }
 
-    public ResponseEntity<Category> updateCategory(Category category) throws CategoryNotFoundException{
+    public ResponseEntity<Category> updateCategory(Category category) throws CategoryNotFoundException {
+        log.info("Updating category with id: {}", category.getCategoryId());
 
-                if(categoryRepository.findById(category.getCategoryId()).isEmpty()){
-                    throw new CategoryNotFoundException("Category with id " + category.getCategoryId() + " is not present in database");
-                }
-                Category existingCategory = categoryRepository.findById(category.getCategoryId()).orElseThrow();
-                existingCategory.setCategoryName(category.getCategoryName());
-                existingCategory.setCategoryId(category.getCategoryId());
-                existingCategory.setCategoryDescription(category.getCategoryDescription());
-                return new ResponseEntity<>(categoryRepository.save(existingCategory),HttpStatus.ACCEPTED);
+        if (categoryRepository.findById(category.getCategoryId()).isEmpty()) {
+            throw new CategoryNotFoundException("Category with id " + category.getCategoryId() + " is not present in database");
+        }
 
+        Category existingCategory = categoryRepository.findById(category.getCategoryId()).orElseThrow();
+        existingCategory.setCategoryName(category.getCategoryName());
+        existingCategory.setCategoryId(category.getCategoryId());
+        existingCategory.setCategoryDescription(category.getCategoryDescription());
+
+        ResponseEntity<Category> responseEntity = new ResponseEntity<>(categoryRepository.save(existingCategory), HttpStatus.ACCEPTED);
+        log.info("Updated category with id {}: {}", category.getCategoryId(), existingCategory.getCategoryName());
+        return responseEntity;
     }
 
-    public void deleteCategory(Long id) throws CategoryNotFoundException{
-        if(categoryRepository.findById(id).isEmpty()){
-            throw new CategoryNotFoundException("Category with id "+id+" is not present in Database");
+    public void deleteCategory(Long id) throws CategoryNotFoundException {
+        log.info("Deleting category with id: {}", id);
+
+        if (categoryRepository.findById(id).isEmpty()) {
+            throw new CategoryNotFoundException("Category with id " + id + " is not present in Database");
         }
-       categoryRepository.deleteById(id);
+
+        categoryRepository.deleteById(id);
+        log.info("Deleted category with id: {}", id);
     }
 }
