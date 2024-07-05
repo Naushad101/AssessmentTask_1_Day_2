@@ -22,7 +22,7 @@ import com.example.service.SubCategoryService;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/api/subcategory")
+@RequestMapping("/subcategory")
 @Slf4j
 public class SubCategoryController {
 
