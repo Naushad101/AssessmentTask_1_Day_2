@@ -1,5 +1,7 @@
 package com.example.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -32,4 +34,6 @@ public interface MultipleChoiceQuestionTestRepository extends JpaRepository<Mult
 //                         @Param("optionFour") String optionFour,
 //                         @Param("correctOption") String correctOption,
 //                         @Param("category") String category);
+
+    Optional<MultipleChoiceQuestion> findByQuestion(String question);
 }

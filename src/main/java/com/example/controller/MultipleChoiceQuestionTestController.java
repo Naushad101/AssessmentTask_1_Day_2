@@ -3,7 +3,6 @@ package com.example.controller;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,51 +16,93 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.exception.QuestionIsAlreadyPresent;
 import com.example.exception.QuestionNotFoundException;
+import com.example.exception.SubCategoryNotFoundException;
 import com.example.model.MultipleChoiceQuestion;
 import com.example.service.MultipleChoiceQuestionTestService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
+@RequestMapping("/question")
+@Slf4j
 public class MultipleChoiceQuestionTestController {
 
-    @Autowired
-    MultipleChoiceQuestionTestService multipleChoiceQuestionTestService;
+    private MultipleChoiceQuestionTestService multipleChoiceQuestionTestService;
 
+    public MultipleChoiceQuestionTestController(MultipleChoiceQuestionTestService multipleChoiceQuestionTestService) {
+        this.multipleChoiceQuestionTestService = multipleChoiceQuestionTestService;
+    }
 
     @PostMapping("/saveBulkQuestion")
-    public ResponseEntity<List<MultipleChoiceQuestion>> saveQuestionFromExcelFile(@RequestParam("file") MultipartFile file){
-        return multipleChoiceQuestionTestService.saveQuestionFromExcelFile(file);
-    }
-    
-    @PostMapping("/saveQuestion")
-    public ResponseEntity<MultipleChoiceQuestion> saveQuestions(@RequestBody MultipleChoiceQuestion multipleChoiceQuestionTest){
-        return new ResponseEntity<>(multipleChoiceQuestionTestService.saveQuestions(multipleChoiceQuestionTest),HttpStatus.CREATED);
+    public ResponseEntity<List<MultipleChoiceQuestion>> saveQuestionFromExcelFile(@RequestParam("file") MultipartFile file) {
+        log.info("Received request to save questions from Excel file.");
+
+        ResponseEntity<List<MultipleChoiceQuestion>> responseEntity = multipleChoiceQuestionTestService.saveQuestionFromExcelFile(file);
+
+        log.info("Returning response after saving questions from Excel file.");
+        return responseEntity;
     }
 
-    @PutMapping("/updateQuestion/{id}")
-    public MultipleChoiceQuestion updateQuestion(@PathVariable("id") Long id,@RequestBody MultipleChoiceQuestion multipleChoiceQuestion){
-        return multipleChoiceQuestionTestService.updateQuestion(id, multipleChoiceQuestion);
+    @PostMapping()
+    public ResponseEntity<MultipleChoiceQuestion> saveQuestions(@RequestBody MultipleChoiceQuestion multipleChoiceQuestionTest)
+            throws QuestionIsAlreadyPresent, SubCategoryNotFoundException {
+        log.info("Received request to save question: {}", multipleChoiceQuestionTest);
+
+        ResponseEntity<MultipleChoiceQuestion> responseEntity = new ResponseEntity<>(
+                multipleChoiceQuestionTestService.saveQuestions(multipleChoiceQuestionTest), HttpStatus.CREATED);
+
+        log.info("Returning response after saving question.");
+        return responseEntity;
     }
 
-    @GetMapping("/getAllQuestion")
-    public List<MultipleChoiceQuestion> getAllQuestion(){
-        if(multipleChoiceQuestionTestService.getAllQuestion()==null){
-            throw new QuestionNotFoundException("Question is not present in database");
+    @PutMapping("/{id}")
+    public MultipleChoiceQuestion updateQuestion(@PathVariable("id") Long id,
+            @RequestBody MultipleChoiceQuestion multipleChoiceQuestion) throws QuestionNotFoundException {
+        log.info("Received request to update question with ID: {}", id);
+
+        MultipleChoiceQuestion updatedQuestion = multipleChoiceQuestionTestService.updateQuestion(id,
+                multipleChoiceQuestion);
+
+        log.info("Returning updated question: {}", updatedQuestion);
+        return updatedQuestion;
+    }
+
+    @GetMapping()
+    public List<MultipleChoiceQuestion> getAllQuestion() throws QuestionNotFoundException {
+        log.info("Received request to fetch all questions.");
+
+        List<MultipleChoiceQuestion> questions = multipleChoiceQuestionTestService.getAllQuestion();
+
+        log.info("Returning {} questions.", questions.size());
+        return questions;
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MultipleChoiceQuestion> getQuestionById(@PathVariable("id") Long id)
+            throws QuestionNotFoundException {
+        log.info("Received request to fetch question with ID: {}", id);
+
+        Optional<MultipleChoiceQuestion> questionOptional = multipleChoiceQuestionTestService.getQuestionById(id);
+
+        if (questionOptional.isPresent()) {
+            MultipleChoiceQuestion question = questionOptional.get();
+            log.info("Returning question: {}", question);
+            return ResponseEntity.ok(question);
+        } else {
+            log.warn("Question with ID {} not found.", id);
+            return ResponseEntity.notFound().build();
         }
-        return multipleChoiceQuestionTestService.getAllQuestion();
     }
 
-    @GetMapping("/getQuestionById")
-    public Optional<MultipleChoiceQuestion> getQuestionById(@RequestParam("id") Long id){
-        if(!multipleChoiceQuestionTestService.getAllQuestion().contains(id)){
-            throw new QuestionNotFoundException("Question is not present in database");
-        }
-        return multipleChoiceQuestionTestService.getQuestionById(id);
-    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteQuestion(@PathVariable("id") Long id) throws QuestionNotFoundException {
+        log.info("Received request to delete question with ID: {}", id);
 
-    @DeleteMapping("/deleteQuestion")
-    public void deleteQuestion(@RequestParam("id") Long id){
         multipleChoiceQuestionTestService.deleteQuestion(id);
-    }
 
+        log.info("Question with ID {} deleted successfully.", id);
+        return ResponseEntity.noContent().build();
+    }
 }

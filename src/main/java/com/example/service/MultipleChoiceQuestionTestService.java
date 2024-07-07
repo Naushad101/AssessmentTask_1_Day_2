@@ -1,48 +1,48 @@
 package com.example.service;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.poi.sl.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.model.Category;
+import com.example.exception.QuestionIsAlreadyPresent;
+import com.example.exception.QuestionNotFoundException;
+import com.example.exception.SubCategoryNotFoundException;
 import com.example.model.MultipleChoiceQuestion;
 import com.example.model.SubCategory;
-import com.example.repository.CategoryRepository;
 import com.example.repository.MultipleChoiceQuestionTestRepository;
 import com.example.repository.SubCategoryRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
-import java.io.FileInputStream;
-
 @Service
 @Slf4j
 public class MultipleChoiceQuestionTestService {
-    @Autowired 
-    MultipleChoiceQuestionTestRepository multipleChoiceQuestionTestRepository;
 
-    @Autowired
-    SubCategoryRepository subCategoryRepository;
+    private MultipleChoiceQuestionTestRepository multipleChoiceQuestionTestRepository;
+    private SubCategoryRepository subCategoryRepository;
 
+    public MultipleChoiceQuestionTestService(MultipleChoiceQuestionTestRepository multipleChoiceQuestionTestRepository, SubCategoryRepository subCategoryRepository) {
+        this.multipleChoiceQuestionTestRepository = multipleChoiceQuestionTestRepository;
+        this.subCategoryRepository = subCategoryRepository;
+    }
 
-      public ResponseEntity<List<MultipleChoiceQuestion>> saveQuestionFromExcelFile(MultipartFile file) {
+    public ResponseEntity<List<MultipleChoiceQuestion>> saveQuestionFromExcelFile(MultipartFile file) {
+        log.debug("Saving questions from Excel file.");
+
         List<MultipleChoiceQuestion> questionBank = new ArrayList<>();
-        
+
         try (InputStream inputStream = file.getInputStream()) {
             Workbook workbook = new XSSFWorkbook(inputStream);
             org.apache.poi.ss.usermodel.Sheet sheet = workbook.getSheetAt(0);
@@ -89,16 +89,13 @@ public class MultipleChoiceQuestionTestService {
                         }
                     }
 
-                    
                     MultipleChoiceQuestion savedQuestion = multipleChoiceQuestionTestRepository.save(multipleChoiceQuestion);
                     questionBank.add(savedQuestion);
                 } else {
-                    
                     log.info("Value of row is Null at index: " + i);
                 }
             }
 
-           
             workbook.close();
             inputStream.close();
 
@@ -107,41 +104,88 @@ public class MultipleChoiceQuestionTestService {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+        log.info("Saved {} questions from Excel file.", questionBank.size());
         return new ResponseEntity<>(questionBank, HttpStatus.OK);
     }
-    public MultipleChoiceQuestion saveQuestions(MultipleChoiceQuestion multipleChoiceQuestionTest){
+
+    public MultipleChoiceQuestion saveQuestions(MultipleChoiceQuestion multipleChoiceQuestionTest) throws QuestionIsAlreadyPresent, SubCategoryNotFoundException {
+        log.debug("Saving question: {}", multipleChoiceQuestionTest.getQuestion());
+
+        if (multipleChoiceQuestionTestRepository.findByQuestion(multipleChoiceQuestionTest.getQuestion()).isPresent()) {
+            String errorMessage = "Question: " + multipleChoiceQuestionTest.getQuestion() + " is already present in database";
+            log.error(errorMessage);
+            throw new QuestionIsAlreadyPresent(errorMessage);
+        }
+
+        if (subCategoryRepository.findById(multipleChoiceQuestionTest.getSubCategory().getSubCategoryId()).isEmpty()) {
+            String errorMessage = "Subcategory " + multipleChoiceQuestionTest.getSubCategory().getSubCategoryName() + " is not present in database";
+            log.error(errorMessage);
+            throw new SubCategoryNotFoundException(errorMessage);
+        }
+
         return multipleChoiceQuestionTestRepository.save(multipleChoiceQuestionTest);
     }
 
-    public java.util.List<MultipleChoiceQuestion> getAllQuestion(){
-        return multipleChoiceQuestionTestRepository.findAll();
-    }
+    public List<MultipleChoiceQuestion> getAllQuestion() throws QuestionNotFoundException {
+        log.debug("Fetching all questions.");
 
-    public Optional<MultipleChoiceQuestion> getQuestionById(Long id){
-       return multipleChoiceQuestionTestRepository.findById(id);
-    }
-
-     public void deleteQuestion(Long id){
-        multipleChoiceQuestionTestRepository.deleteById(id);
-    }
-
-    public MultipleChoiceQuestion updateQuestion(Long id,MultipleChoiceQuestion multipleChoiceQuestion){
-        Optional<MultipleChoiceQuestion> existinqQuestion = multipleChoiceQuestionTestRepository.findById(id);
-        if(existinqQuestion.isPresent()){
-            MultipleChoiceQuestion multipleChoiceQuestion2 = existinqQuestion.get();
-            multipleChoiceQuestion2.setQuestion(multipleChoiceQuestion.getQuestion());
-            multipleChoiceQuestion2.setOptionOne(multipleChoiceQuestion.getOptionOne());
-            multipleChoiceQuestion2.setOptionTwo(multipleChoiceQuestion.getOptionTwo());
-            multipleChoiceQuestion2.setOptionThree(multipleChoiceQuestion.getOptionThree());
-            multipleChoiceQuestion2.setOptionFour(multipleChoiceQuestion.getOptionFour());
-            multipleChoiceQuestion2.setCorrectOption(multipleChoiceQuestion.getCorrectOption());
-            multipleChoiceQuestion2.setPositiveMark(multipleChoiceQuestion.getPositiveMark());
-            multipleChoiceQuestion2.setNegativeMark(multipleChoiceQuestion.getNegativeMark());
-            multipleChoiceQuestion2.setSubCategory(multipleChoiceQuestion.getSubCategory());
-            return multipleChoiceQuestionTestRepository.save(multipleChoiceQuestion2);
+        try {
+            return multipleChoiceQuestionTestRepository.findAll();
+        } catch (DataAccessException e) {
+            log.error("Failed to retrieve questions from the database", e);
+            throw new QuestionNotFoundException("Failed to retrieve questions from the database");
         }
-        else return null;
     }
 
+    public Optional<MultipleChoiceQuestion> getQuestionById(Long id) throws QuestionNotFoundException {
+        log.debug("Fetching question with id: {}", id);
+
+        if (multipleChoiceQuestionTestRepository.findById(id).isEmpty()) {
+            String errorMessage = "Question with id " + id + " is not present in database";
+            log.error(errorMessage);
+            throw new QuestionNotFoundException(errorMessage);
+        }
+
+        return multipleChoiceQuestionTestRepository.findById(id);
+    }
+
+    public void deleteQuestion(Long id) throws QuestionNotFoundException {
+        log.debug("Deleting question with id: {}", id);
+
+        if (multipleChoiceQuestionTestRepository.findById(id).isEmpty()) {
+            String errorMessage = "Question with id " + id + " is not present in database";
+            log.error(errorMessage);
+            throw new QuestionNotFoundException(errorMessage);
+        }
+
+        multipleChoiceQuestionTestRepository.deleteById(id);
+        log.info("Deleted question with id {}", id);
+    }
+
+    public MultipleChoiceQuestion updateQuestion(Long id, MultipleChoiceQuestion multipleChoiceQuestion) throws QuestionNotFoundException {
+        log.debug("Updating question with id: {}", id);
+
+        Optional<MultipleChoiceQuestion> existingQuestion = multipleChoiceQuestionTestRepository.findById(id);
+        if (existingQuestion.isEmpty()) {
+            String errorMessage = "Question with id " + id + " is not present in database";
+            log.error(errorMessage);
+            throw new QuestionNotFoundException(errorMessage);
+        }
+
+        MultipleChoiceQuestion updatedQuestion = existingQuestion.get();
+        updatedQuestion.setQuestion(multipleChoiceQuestion.getQuestion());
+        updatedQuestion.setOptionOne(multipleChoiceQuestion.getOptionOne());
+        updatedQuestion.setOptionTwo(multipleChoiceQuestion.getOptionTwo());
+        updatedQuestion.setOptionThree(multipleChoiceQuestion.getOptionThree());
+        updatedQuestion.setOptionFour(multipleChoiceQuestion.getOptionFour());
+        updatedQuestion.setCorrectOption(multipleChoiceQuestion.getCorrectOption());
+        updatedQuestion.setPositiveMark(multipleChoiceQuestion.getPositiveMark());
+        updatedQuestion.setNegativeMark(multipleChoiceQuestion.getNegativeMark());
+        updatedQuestion.setSubCategory(multipleChoiceQuestion.getSubCategory());
+
+        MultipleChoiceQuestion savedQuestion = multipleChoiceQuestionTestRepository.save(updatedQuestion);
+        log.info("Updated question with id {}", id);
+        return savedQuestion;
+    }
 
 }

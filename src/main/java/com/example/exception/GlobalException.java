@@ -36,5 +36,9 @@ public class GlobalException {
     public ResponseEntity<String> subCategoryIsAlreadyPresent(SubCategoryIsAlreadyPresent msg){
         return new ResponseEntity<>(msg.getMessage(),HttpStatus.ALREADY_REPORTED);
     }
+    @org.springframework.web.bind.annotation.ExceptionHandler(QuestionIsAlreadyPresent.class)
+    public ResponseEntity<String> questionIsAlreadyPresentException(QuestionIsAlreadyPresent msg){
+        return new ResponseEntity<>(msg.getMessage(),HttpStatus.ALREADY_REPORTED);
+    }
 
 }
