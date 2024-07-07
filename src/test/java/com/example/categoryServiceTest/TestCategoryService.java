@@ -1,5 +1,6 @@
 package com.example.categoryServiceTest;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,13 +10,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
+import com.example.exception.CategoryNotFoundException;
+import com.example.exception.CategroyIsAlreadyPresent;
 import com.example.model.Category;
 import com.example.repository.CategoryRepository;
 import com.example.service.CategoryService;
 
-@ExtendWith(MockitoExtension.class)
 public class TestCategoryService {
 
     @Mock
@@ -28,11 +33,12 @@ public class TestCategoryService {
 
     @BeforeEach
     public void setUp() {
+        MockitoAnnotations.openMocks(this);
         category = new Category(1L, "TestCategory", "Test Description");
     }
 
     @Test
-    public void testSaveCategory() {
+    void testSaveCategory() throws CategroyIsAlreadyPresent {
     
         when(categoryRepository.save(category)).thenReturn(category);
 
@@ -46,7 +52,7 @@ public class TestCategoryService {
     }
 
     @Test
-    public void testGetCategory() {
+    void testGetCategory() throws CategoryNotFoundException {
         
         List<Category> categories = new ArrayList<>();
         categories.add(category);
@@ -62,26 +68,37 @@ public class TestCategoryService {
     }
 
     @Test
-    public void testUpdateCategory() {
-        
-        String updatedName = "UpdatedTestCategory";
-        String updatedDescription = "Updated Test Description";
+    void testUpdateCategory_Success() throws CategoryNotFoundException {
+      
+        Category category1 = new Category();
+        category1.setCategoryId(1L);
+        category1.setCategoryName("Updated Category");
+        category1.setCategoryDescription("Updated Description");
 
-       
-        Category updatedCategory = categoryService.updateCategory(1L, updatedName, updatedDescription);
 
-        
-        assertNotNull(updatedCategory);
-        assertEquals(updatedName, updatedCategory.getCategoryName());
-        assertEquals(updatedDescription, updatedCategory.getCategoryDescription());
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(new Category())); 
+        when(categoryRepository.save(any())).thenReturn(category1);
+
+        ResponseEntity<Category> responseEntity = categoryService.updateCategory(category1);
+
+    
+        assertNotNull(responseEntity);
+        assertEquals(HttpStatus.ACCEPTED, responseEntity.getStatusCode());
+        assertEquals("Updated Category", responseEntity.getBody().getCategoryName());
     }
 
     @Test
-    public void testDeleteCategory() {
-       
-        categoryService.deleteCategory(1L);
+    void testDeleteCategory_Success() {
+        Long categoryId = 1L;
 
-       
-        verify(categoryRepository, times(1)).deleteById(1L);
+        when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(new Category()));
+
+        assertDoesNotThrow(() -> categoryService.deleteCategory(categoryId));
+        
+        verify(categoryRepository, times(1)).findById(categoryId);
+        verify(categoryRepository, times(1)).deleteById(categoryId);
     }
+
+        
 }
+    
