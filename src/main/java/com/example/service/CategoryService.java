@@ -2,7 +2,6 @@ package com.example.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +42,7 @@ public class CategoryService {
         try {
             List<Category> categories = categoryRepository.findAll();
             log.info("Fetched {} categories", categories.size());
+            
             return categories;
         } catch (DataAccessException e) {
             String message = "Failed to retrieve categories from the database";
@@ -78,4 +78,5 @@ public class CategoryService {
         categoryRepository.deleteById(id);
         log.info("Deleted category with id: {}", id);
     }
+
 }
