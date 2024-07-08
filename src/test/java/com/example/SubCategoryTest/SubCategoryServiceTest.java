@@ -21,11 +21,11 @@ import com.example.model.Category;
 import com.example.model.SubCategory;
 import com.example.repository.CategoryRepository;
 import com.example.repository.SubCategoryRepository;
-import com.example.service.SubCategoryService;
+import com.example.service.Impl.SubCategoryServiceImpl;
 
-public class SubCategoryServiceTest {
+class SubCategoryServiceTest {
 
-    private SubCategoryService subCategoryService;
+    private SubCategoryServiceImpl subCategoryService;
     private SubCategoryRepository subCategoryRepository;
     private CategoryRepository categoryRepository;
 
@@ -33,7 +33,7 @@ public class SubCategoryServiceTest {
     public void setUp() {
         subCategoryRepository = mock(SubCategoryRepository.class);
         categoryRepository = mock(CategoryRepository.class);
-        subCategoryService = new SubCategoryService(subCategoryRepository, categoryRepository);
+        subCategoryService = new SubCategoryServiceImpl(subCategoryRepository, categoryRepository);
     }
 
    @Test

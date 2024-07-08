@@ -21,12 +21,12 @@ import com.example.exception.QuestionIsAlreadyPresent;
 import com.example.exception.QuestionNotFoundException;
 import com.example.exception.SubCategoryNotFoundException;
 import com.example.model.MultipleChoiceQuestion;
-import com.example.service.MultipleChoiceQuestionTestService;
+import com.example.service.Impl.MultipleChoiceQuestionTestServiceImpl;
 
 class MultipleChoiceQuestionTestControllerTest {
 
     @Mock
-    private MultipleChoiceQuestionTestService questionService;
+    private MultipleChoiceQuestionTestServiceImpl questionService;
 
     @InjectMocks
     private MultipleChoiceQuestionTestController questionController;

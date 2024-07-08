@@ -7,6 +7,8 @@ import com.example.exception.SubCategoryNotFoundException;
 import com.example.model.Category;
 import com.example.model.SubCategory;
 import com.example.service.SubCategoryService;
+import com.example.service.Impl.SubCategoryServiceImpl;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -23,7 +25,7 @@ import static org.mockito.Mockito.*;
 class SubCategoryControllerTest {
 
     @Mock
-    private SubCategoryService subCategoryService;
+    private SubCategoryServiceImpl subCategoryService;
 
     @InjectMocks
     private SubCategoryController subCategoryController;

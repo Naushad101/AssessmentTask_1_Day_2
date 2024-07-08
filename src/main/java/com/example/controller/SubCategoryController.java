@@ -27,14 +27,14 @@ import lombok.extern.slf4j.Slf4j;
 public class SubCategoryController {
 
    
-    private final SubCategoryService subCategoryService;
+    private SubCategoryService subCategoryService;
 
     public SubCategoryController(SubCategoryService subCategoryService){
         this.subCategoryService = subCategoryService;
     }
     
     @PostMapping()
-    public ResponseEntity<SubCategory> saveSubCategory(@RequestBody SubCategory subCategory) throws SubCategoryIsAlreadyPresent, CategoryNotFoundException {
+    public ResponseEntity<SubCategory> saveSubCategory(@RequestBody SubCategory subCategory){
         log.info("Saving subcategory: {}", subCategory.getSubCategoryName());
         ResponseEntity<SubCategory> responseEntity = subCategoryService.saveSubCategory(subCategory);
         log.info("Saved subcategory: {}", responseEntity.getBody().getSubCategoryName());
@@ -42,7 +42,7 @@ public class SubCategoryController {
     }
     
     @GetMapping()
-    public ResponseEntity<List<SubCategory>> getAllSubCategories() throws SubCategoryNotFoundException {
+    public ResponseEntity<List<SubCategory>> getAllSubCategories(){
         log.info("Fetching all subcategories");
         List<SubCategory> subCategories = subCategoryService.getAllSubCategories();
         log.info("Fetched {} subcategories", subCategories.size());
@@ -50,7 +50,7 @@ public class SubCategoryController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<SubCategory> getSubCategoryById(@PathVariable Long id) throws SubCategoryNotFoundException {
+    public ResponseEntity<SubCategory> getSubCategoryById(@PathVariable Long id){
         log.info("Fetching subcategory with id: {}", id);
         ResponseEntity<SubCategory> responseEntity = subCategoryService.getSubCategoryById(id);
         log.info("Fetched subcategory with id {}: {}", id, responseEntity.getBody().getSubCategoryName());
@@ -58,7 +58,7 @@ public class SubCategoryController {
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<SubCategory> updateSubCategory(@PathVariable Long id, @RequestBody SubCategory subCategory) throws SubCategoryNotFoundException {
+    public ResponseEntity<SubCategory> updateSubCategory(@PathVariable Long id, @RequestBody SubCategory subCategory){
         log.info("Updating subcategory with id: {}", id);
         ResponseEntity<SubCategory> responseEntity = subCategoryService.updateSubCategory(id, subCategory);
         log.info("Updated subcategory with id {}: {}", id, responseEntity.getBody().getSubCategoryName());
@@ -66,7 +66,7 @@ public class SubCategoryController {
     }
     
     @DeleteMapping("/{id}")
-    public void deleteSubCategory(@PathVariable Long id) throws SubCategoryNotFoundException {
+    public void deleteSubCategory(@PathVariable Long id){
         log.info("Deleting subcategory with id: {}", id);
         subCategoryService.deleteSubCategory(id);
         log.info("Deleted subcategory with id: {}", id);

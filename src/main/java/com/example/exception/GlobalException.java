@@ -1,13 +1,8 @@
 package com.example.exception;
 
-import org.hibernate.boot.archive.scan.spi.ClassDescriptor.Categorization;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import com.example.model.Category;
-
-import ch.qos.logback.core.net.SocketConnector.ExceptionHandler;
 
 @RestControllerAdvice
 public class GlobalException {

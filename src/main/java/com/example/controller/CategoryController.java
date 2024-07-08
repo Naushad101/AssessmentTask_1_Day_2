@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.exception.CategoryNotFoundException;
-import com.example.exception.CategroyIsAlreadyPresent;
 import com.example.model.Category;
 import com.example.service.CategoryService;
 
@@ -25,14 +23,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CategoryController {
 
-    private final CategoryService categoryService;
+    private CategoryService categoryService;
 
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
 
     @PostMapping()
-    public ResponseEntity<Category> saveCategory(@RequestBody Category category) throws CategroyIsAlreadyPresent {
+    public ResponseEntity<Category> saveCategory(@RequestBody Category category) {
         log.info("Saving category: {}", category.getCategoryName());
         ResponseEntity<Category> responseEntity = new ResponseEntity<>(categoryService.saveCategory(category), HttpStatus.CREATED);
         log.info("Saved category: {}", responseEntity.getBody().getCategoryName());
@@ -40,7 +38,7 @@ public class CategoryController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<Category>> getCategory() throws CategoryNotFoundException {
+    public ResponseEntity<List<Category>> getCategory(){
         log.info("Fetching all categories");
         List<Category> categories = categoryService.getCategory();
         log.info("Fetched {} categories", categories.size());
@@ -48,7 +46,7 @@ public class CategoryController {
     }
 
     @PutMapping()
-    public ResponseEntity<Category> updateCategory(@RequestBody Category category) throws CategoryNotFoundException {
+    public ResponseEntity<Category> updateCategory(@RequestBody Category category){
         log.info("Updating category with id: {}", category.getCategoryId());
         ResponseEntity<Category> responseEntity = categoryService.updateCategory(category);
         log.info("Updated category with id {}: {}", category.getCategoryId(), responseEntity.getBody().getCategoryName());
@@ -56,7 +54,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCategory(@PathVariable("id") Long id) throws CategoryNotFoundException {
+    public void deleteCategory(@PathVariable("id") Long id){
         log.info("Deleting category with id: {}", id);
         categoryService.deleteCategory(id);
         log.info("Deleted category with id: {}", id);

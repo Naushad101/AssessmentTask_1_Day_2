@@ -8,7 +8,7 @@ import com.example.model.MultipleChoiceQuestion;
 import com.example.model.SubCategory;
 import com.example.repository.MultipleChoiceQuestionTestRepository;
 import com.example.repository.SubCategoryRepository;
-import com.example.service.MultipleChoiceQuestionTestService;
+import com.example.service.Impl.MultipleChoiceQuestionTestServiceImpl;
 
 import org.apache.poi.util.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +42,7 @@ class MultipleChoiceQuestionTestServiceTest {
     private SubCategoryRepository subCategoryRepository;
 
     @InjectMocks
-    private MultipleChoiceQuestionTestService questionService;
+    private MultipleChoiceQuestionTestServiceImpl questionService;
 
     @BeforeEach
     public void setUp() {

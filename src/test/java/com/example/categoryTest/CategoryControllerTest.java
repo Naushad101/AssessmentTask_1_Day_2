@@ -7,6 +7,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -14,17 +17,19 @@ import com.example.controller.CategoryController;
 import com.example.exception.CategoryNotFoundException;
 import com.example.exception.CategroyIsAlreadyPresent;
 import com.example.model.Category;
-import com.example.service.CategoryService;
+import com.example.service.Impl.CategoryServiceImpl;
 
-public class CategoryControllerTest {
+class CategoryControllerTest {
 
+    @Mock
+    private CategoryServiceImpl categoryService;
+
+    @InjectMocks
     private CategoryController categoryController;
-    private CategoryService categoryService;
 
     @BeforeEach
     public void setUp() {
-        categoryService = mock(CategoryService.class);
-        categoryController = new CategoryController(categoryService);
+       MockitoAnnotations.openMocks(this);
     }
 
     @Test

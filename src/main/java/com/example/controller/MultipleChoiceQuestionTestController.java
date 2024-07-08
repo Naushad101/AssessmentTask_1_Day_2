@@ -47,7 +47,7 @@ public class MultipleChoiceQuestionTestController {
 
     @PostMapping()
     public ResponseEntity<MultipleChoiceQuestion> saveQuestions(@RequestBody MultipleChoiceQuestion multipleChoiceQuestionTest)
-            throws QuestionIsAlreadyPresent, SubCategoryNotFoundException {
+           {
         log.info("Received request to save question: {}", multipleChoiceQuestionTest);
 
         ResponseEntity<MultipleChoiceQuestion> responseEntity = new ResponseEntity<>(
@@ -59,7 +59,7 @@ public class MultipleChoiceQuestionTestController {
 
     @PutMapping("/{id}")
     public MultipleChoiceQuestion updateQuestion(@PathVariable("id") Long id,
-            @RequestBody MultipleChoiceQuestion multipleChoiceQuestion) throws QuestionNotFoundException {
+            @RequestBody MultipleChoiceQuestion multipleChoiceQuestion) {
         log.info("Received request to update question with ID: {}", id);
 
         MultipleChoiceQuestion updatedQuestion = multipleChoiceQuestionTestService.updateQuestion(id,
@@ -70,7 +70,7 @@ public class MultipleChoiceQuestionTestController {
     }
 
     @GetMapping()
-    public List<MultipleChoiceQuestion> getAllQuestion() throws QuestionNotFoundException {
+    public List<MultipleChoiceQuestion> getAllQuestion() {
         log.info("Received request to fetch all questions.");
 
         List<MultipleChoiceQuestion> questions = multipleChoiceQuestionTestService.getAllQuestion();
@@ -81,7 +81,7 @@ public class MultipleChoiceQuestionTestController {
 
     @GetMapping("/{id}")
     public ResponseEntity<MultipleChoiceQuestion> getQuestionById(@PathVariable("id") Long id)
-            throws QuestionNotFoundException {
+            {
         log.info("Received request to fetch question with ID: {}", id);
 
         Optional<MultipleChoiceQuestion> questionOptional = multipleChoiceQuestionTestService.getQuestionById(id);
@@ -97,7 +97,7 @@ public class MultipleChoiceQuestionTestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteQuestion(@PathVariable("id") Long id) throws QuestionNotFoundException {
+    public ResponseEntity<Void> deleteQuestion(@PathVariable("id") Long id){
         log.info("Received request to delete question with ID: {}", id);
 
         multipleChoiceQuestionTestService.deleteQuestion(id);
